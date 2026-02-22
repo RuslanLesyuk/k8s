@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - name: Checkout
@@ -20,11 +20,6 @@ jobs:
 
     - name: Push image
       run: docker push ghcr.io/${{ github.repository }}/my-nginx:latest
-
-    - name: Set kubeconfig
-      run: |
-        mkdir -p ~/.kube
-        echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
 
     - name: Deploy to Kubernetes
       run: |
