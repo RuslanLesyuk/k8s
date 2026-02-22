@@ -18,7 +18,7 @@ jobs:
     - name: Build image
       run: docker build -t ghcr.io/ruslanlesyuk/my-nginx:latest .
 
-      name: Push image
+    - name: Push image
       run: docker push ghcr.io/ruslanlesyuk/my-nginx:latest
 
     - name: Deploy to Kubernetes
