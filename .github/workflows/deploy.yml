@@ -36,4 +36,4 @@ jobs:
 
       # ☸️ Deploy в Kubernetes
       - name: Deploy to cluster
-        run: kubectl apply -f deployment.yaml
+        run: kubectl apply -f k8s/deployment.yaml
