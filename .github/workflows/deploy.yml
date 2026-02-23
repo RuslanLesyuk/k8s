@@ -1,27 +1,39 @@
-name: Build and Deploy to Kubernetes
+name: Deploy to Kubernetes
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - main
 
 jobs:
-  build:
-    runs-on: self-hosted
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      # 🔥 ОБОВ’ЯЗКОВО — забирає код з репозиторію
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Login to GHCR
-      run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      # 🔎 перевіримо що файли реально є
+      - name: List files
+        run: ls -R
 
-    - name: Build image
-      run: docker build -t ghcr.io/ruslanlesyuk/my-nginx:latest .
+      # 🔐 логін в GitHub Container Registry
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-    - name: Push image
-      run: docker push ghcr.io/ruslanlesyuk/my-nginx:latest
+      # 🐳 Build образу
+      - name: Build Docker image
+        run: docker build -t ghcr.io/${{ github.repository_owner }}/my-nginx:latest .
 
-    - name: Deploy to Kubernetes
-      run: |
-        kubectl apply -f k8s/deployment.yaml
-        kubectl apply -f k8s/service.yaml
+      # 📦 Push образу
+      - name: Push Docker image
+        run: docker push ghcr.io/${{ github.repository_owner }}/my-nginx:latest
+
+      # ☸️ Deploy в Kubernetes
+      - name: Deploy to cluster
+        run: kubectl apply -f k8s/deployment.yaml
